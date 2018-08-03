@@ -19,5 +19,13 @@
   background-color: black;
   width: 7.5vw;
   height: 7.5vw;
-  border: 20px white solid;
+  border: 1px white solid;
+}
+
+.active{
+  border: 4px red solid;
+}
+
+.filled{
+  background-color: gray;
 }
