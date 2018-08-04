@@ -94,6 +94,7 @@ function playColumn (){ //loop through the column sound.
     if(index > 3) index = 0; //reset the loop
     sound[index].map((k)=>{
     const aud = document.querySelector(`audio[data-key="${k}"]`)
+    if(!aud) return
     aud.currentTime = 0;
     aud.play();
     })
@@ -123,7 +124,7 @@ function drawColumn (i){//Drawing columns when looping through them
 }
 
 
-function playSound(e){
+function playSound(e){//Play sound on keypress
   prevPosition = position;
   const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`)
   if(!audio) return; //stop the function from running.
@@ -132,8 +133,9 @@ function playSound(e){
   if (position == 16){
     return
   }
+  drawFilled()//Draw filled before moving position.
   position++
-  drawFocus(prevPosition);
+  drawFocus(prevPosition);//Draw Focus after moving position. 
 }
 
 let position = 1;// position of focus (red border!)
@@ -190,16 +192,9 @@ function drawFocus(lastPos){//Draw focus
   lastBlock.classList.remove('active')
   const block = document.getElementById(position)
   block.classList.add('active')
+}
 
-
-  // if (position > 1){//if position =! first position calculate last position to remove class 'active'
-  //   let lastPosition = position -1
-  //   const lastBloque = document.getElementById(lastPosition);
-  //   lastBloque.classList.remove('active')
-  // }
-  //
-  // const bloque = document.getElementById(position)
-  // bloque.classList.add('active')
-  // bloque.classList.add('filled')
-  // position++
+function drawFilled(){//Draw Filled when sound in box
+  const block = document.getElementById(position);
+  block.classList.add('filled')
 }
