@@ -1,7 +1,7 @@
 let sound = [[32,32,32,32],[32,32,32,32],[32,32,32,32],[32,32,32,32]] //4*4
 const validKey = [81,87,69,82,84,89,85,73,79,80,65,83,68,70,71,72,74,75,76,90,88,67,86,66,78,77] //array with valid keyCodes
 
-window.addEventListener('keydown', populateSounds)
+//window.addEventListener('keydown', populateSounds)
 window.addEventListener('keydown', playSound)
 
 //Buttons
@@ -28,9 +28,15 @@ function stopPlaying(){ //stop looping
 
 }
 
-function resetAll(){
+function resetAll(){ //Reset focus/filled and stored sounds
   stopPlaying()
   clearAllFilled()
+  //set Sounds to 32 (silence)
+  sound.forEach(function(column){
+    column.forEach(function(e, index, array){
+      array[index] = 32;
+    })
+  })
 }
 
 var playInterval = null;// Declared outside playRecord function so i can call clearInterval on it from outside.
@@ -81,10 +87,11 @@ function playSound(e){//Play sound on keypress
   if(!audio) return; //stop the function from running.
   audio.currentTime = 0; //reset sound.
   audio.play();
+  populateSounds(e);
+  drawFilled(e)//Draw filled before moving position.
   if (position == 16){
     return
   }
-  drawFilled()//Draw filled before moving position.
   position++
   drawFocus(prevPosition);//Draw Focus after moving position.
 }
@@ -224,7 +231,8 @@ function drawFocus(){//Draw focus
   block.classList.add('active')
 }
 
-function drawFilled(){//Draw Filled when sound in box
+function drawFilled(e){//Draw Filled when sound in box
+  if(e.keyCode == 32) return// if press Space (keycode = 32) dont draw as filled with sound
   const block = document.getElementById(position);
   block.classList.add('filled')
 }
