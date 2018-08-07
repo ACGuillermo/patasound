@@ -1,16 +1,98 @@
 let sound = [[32,32,32,32],[32,32,32,32],[32,32,32,32],[32,32,32,32]] //4*4
+const validKey = [81,87,69,82,84,89,85,73,79,80,65,83,68,70,71,72,74,75,76,90,88,67,86,66,78,77] //array with valid keyCodes
 
 window.addEventListener('keydown', populateSounds)
 window.addEventListener('keydown', playSound)
 
-
-const playButton = document.querySelector('.play')
+//Buttons
+const playButton = document.querySelector('.play') //Play button
 playButton.addEventListener('click', playRecord);
 
+const stopButton = document.querySelector('.stop') //Stop Buttons
+stopButton.addEventListener('click', stopPlaying)
 
-function populateSounds (e){
-  console.log(e.keyCode);
-    let auxPos = 0
+const resetButton = document.querySelector('.reset')
+resetButton.addEventListener('click', resetAll)
+
+
+
+
+//Play, stop and reset functions.
+function stopPlaying(){ //stop looping
+  position = 1;
+  prevPosition = 1;
+  index = 0;
+  clearInterval(playInterval);
+  clearAllFocus();
+  drawFocus();
+
+}
+
+function resetAll(){
+  stopPlaying()
+  clearAllFilled()
+}
+
+var playInterval = null;// Declared outside playRecord function so i can call clearInterval on it from outside.
+function playRecord (){
+  playInterval = setInterval(playColumn, 400); //Play column 0.4s rate
+}
+
+let index = 0;//counter for looping throung groups of sounds(columns/arrays inside sound array)
+function playColumn (){ //loop through the column sound.
+    if(index > 3) index = 0; //reset the loop
+    sound[index].map((k)=>{
+    const aud = document.querySelector(`audio[data-key="${k}"]`)
+    if(!aud) return
+    aud.currentTime = 0;
+    aud.play();
+    })
+    drawColumn(index);
+    index++ //To go next group of sound/column
+    console.log(index);
+}
+
+function drawColumn (i){//Drawing columns when looping through them
+  let indexColumn = [[1,5,9,13],[2,6,10,14],[3,7,11,15],[4,8,12,16]] // Columns matching Ids in html
+  if(i>0){
+    let aux = i - 1;
+    indexColumn[aux].map((id)=>{//remove active from last column
+      const auxBox = document.getElementById(id);
+      auxBox.classList.remove('active')
+    })
+  }
+  indexColumn[3].map((id)=>{//remove active from 4th column
+    const auxBox = document.getElementById(id);
+    auxBox.classList.remove('active')
+  }) //Draw active current column
+  indexColumn[i].map((id)=>{
+    const box = document.getElementById(id)
+    box.classList.add('active')
+  })
+}
+
+
+
+
+//Play and store sound functions.
+function playSound(e){//Play sound on keypress
+  prevPosition = position;
+  const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`)
+  if(!audio) return; //stop the function from running.
+  audio.currentTime = 0; //reset sound.
+  audio.play();
+  if (position == 16){
+    return
+  }
+  drawFilled()//Draw filled before moving position.
+  position++
+  drawFocus(prevPosition);//Draw Focus after moving position.
+}
+
+function populateSounds (e){ //Put keyCodes inside sound array.
+
+  if (validKey.indexOf(e.keyCode) == -1) return // Stop function when the key has no sound.
+  let auxPos = 0
   switch(position){
       case 1:
         auxPos = 0
@@ -82,67 +164,15 @@ function populateSounds (e){
     }
 }
 
-
-
-function playRecord (){
-  var playInterval = setInterval(playColumn, 400); //Play column 0.4s rate
-}
-
-
-let index = 0;//counter for looping throung groups of sounds(columns/arrays inside sound array)
-function playColumn (){ //loop through the column sound.
-    if(index > 3) index = 0; //reset the loop
-    sound[index].map((k)=>{
-    const aud = document.querySelector(`audio[data-key="${k}"]`)
-    if(!aud) return
-    aud.currentTime = 0;
-    aud.play();
-    })
-    drawColumn(index);
-    index++ //To go next group of sound/column
-    console.log(index);
-}
-
-
-function drawColumn (i){//Drawing columns when looping through them
-  let indexColumn = [[1,5,9,13],[2,6,10,14],[3,7,11,15],[4,8,12,16]] // Columns matching Ids in html
-  if(i>0){
-    let aux = i - 1;
-    indexColumn[aux].map((id)=>{//remove active from last column
-      const auxBox = document.getElementById(id);
-      auxBox.classList.remove('active')
-    })
-  }
-  indexColumn[3].map((id)=>{//remove active from 4th column
-    const auxBox = document.getElementById(id);
-    auxBox.classList.remove('active')
-  }) //Draw active current column
-  indexColumn[i].map((id)=>{
-    const box = document.getElementById(id)
-    box.classList.add('active')
-  })
-}
-
-
-function playSound(e){//Play sound on keypress
-  prevPosition = position;
-  const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`)
-  if(!audio) return; //stop the function from running.
-  audio.currentTime = 0; //reset sound.
-  audio.play();
-  if (position == 16){
-    return
-  }
-  drawFilled()//Draw filled before moving position.
-  position++
-  drawFocus(prevPosition);//Draw Focus after moving position. 
-}
-
 let position = 1;// position of focus (red border!)
 let prevPosition = 1;//last position of focus
 
 window.addEventListener('keydown', moveFocus)
 
+
+
+
+//Focus and Filled functions.
 function moveFocus(e){ //Move focus with arrow keys
   prevPosition = position;
   let move = e.keyCode;
@@ -150,45 +180,45 @@ function moveFocus(e){ //Move focus with arrow keys
     case 38: //up
       if(position == 1 || position == 2 || position == 3 || position == 4){
         position += 12;
-        drawFocus(prevPosition);
+        drawFocus();
       } else{
         position -= 4;
-        drawFocus(prevPosition);
+        drawFocus();
         }
       break;
     case 37: //left
       if(position == 1 || position == 5 || position == 9 || position == 13){
         position += 3;
-        drawFocus(prevPosition);
+        drawFocus();
       } else{
         position -= 1;
-        drawFocus(prevPosition);
+        drawFocus();
         }
       break;
     case 40: //down
       if (position == 13 || position == 14 || position == 15 || position == 16) {
         position -= 12;
-        drawFocus(prevPosition);
+        drawFocus();
       } else{
         position += 4;
-        drawFocus(prevPosition)
+        drawFocus()
         }
       break;
     case 39://right
       if (position == 4 || position == 8 || position == 12 || position == 16){
         position -= 3;
-        drawFocus(prevPosition);
+        drawFocus();
       } else{
         position += 1;
-        drawFocus(prevPosition)
+        drawFocus()
         }
       break;
   }
 
 }
 
-function drawFocus(lastPos){//Draw focus
-  const lastBlock = document.getElementById(lastPos);
+function drawFocus(){//Draw focus
+  const lastBlock = document.getElementById(prevPosition);
   lastBlock.classList.remove('active')
   const block = document.getElementById(position)
   block.classList.add('active')
@@ -197,4 +227,18 @@ function drawFocus(lastPos){//Draw focus
 function drawFilled(){//Draw Filled when sound in box
   const block = document.getElementById(position);
   block.classList.add('filled')
+}
+
+function clearAllFocus(){//Clear focus. called when stopPlaying
+  const allBoxes = document.querySelectorAll('.item')
+  Array.from(allBoxes).map((box) =>{
+    box.classList.remove('active');
+  })
+}
+
+function clearAllFilled(){//Clear filled. Called when reseting.
+  const allBoxes = document.querySelectorAll('.item')
+  Array.from(allBoxes).map((box)=>{
+    box.classList.remove('filled')
+  });
 }
