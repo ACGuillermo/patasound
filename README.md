@@ -7,6 +7,6 @@ A to Z have a sound on keypress. Store it in the boxes and play them in a loop. 
 
 No visuals yet.
 
-Demo live at: https://jacknoddyz.github.io/patasound/
+Demo live at: https://ACGuillermo.github.io/patasound/
 
 Happy coding :)
